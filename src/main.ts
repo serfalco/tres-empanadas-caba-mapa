@@ -1,9 +1,17 @@
+import './leaflet-global';
 import L from 'leaflet';
+import 'leaflet.heat';
 import 'leaflet/dist/leaflet.css';
 import './estilo.css';
-import { CAPAS } from './capas';
+import { CAPAS_CULTURA } from './capas';
 import { fichaHTML } from './ficha';
-import type { Coleccion, Espacio, EspacioFeature } from './tipos';
+import { montarBarrios } from './ui-barrios';
+import { montarEconomia } from './ui-economia';
+import { montarInmuebles } from './ui-inmuebles';
+import { montarTransporte } from './ui-transporte';
+import { montarZona } from './ui-zona';
+import type { BarrioFeature, Coleccion, Datos, Espacio, EspacioFeature, Inmueble, InmuebleFeature, TransporteFeature } from './tipos';
+import { $, metros, norm } from './util';
 
 const CENTRO_CABA: L.LatLngExpression = [-34.6118, -58.4173];
 
@@ -11,78 +19,169 @@ const mapa = L.map('mapa', { preferCanvas: true, zoomControl: true }).setView(CE
 L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
   maxZoom: 19,
   subdomains: 'abcd',
-  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> · © <a href="https://carto.com/attributions">CARTO</a>',
+  attribution:
+    '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> · © <a href="https://carto.com/attributions">CARTO</a>',
 }).addTo(mapa);
 
-const grupos = new Map<string, L.LayerGroup>();
-const visibles = new Set(CAPAS.filter((c) => c.visible).map((c) => c.id));
-let todos: EspacioFeature[] = [];
+// Panes para ordenar capas: barrios abajo, transporte en el medio, puntos arriba.
+mapa.createPane('barrios').style.zIndex = '350';
+mapa.createPane('transporte').style.zIndex = '420';
+mapa.createPane('calor').style.zIndex = '430';
+mapa.createPane('inmuebles').style.zIndex = '650';
 
-const norm = (s: string | null) => (s ?? '').normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
+// ---------- Pestañas ----------
+export function irAPestana(id: string) {
+  document.querySelectorAll<HTMLButtonElement>('[data-pestana]').forEach((b) =>
+    b.setAttribute('aria-selected', String(b.dataset.pestana === id)),
+  );
+  document.querySelectorAll<HTMLElement>('[data-vista]').forEach((v) => (v.hidden = v.dataset.vista !== id));
+  const app = document.getElementById('app')!;
+  app.classList.remove('sin-panel');
+  const ancho = id === 'zona' || id === 'economia';
+  if (app.classList.contains('ancho') !== ancho) {
+    app.classList.toggle('ancho', ancho);
+    setTimeout(() => mapa.invalidateSize(), 50);
+  }
+}
+document.querySelector('.pestanas')!.addEventListener('click', (e) => {
+  const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-pestana]');
+  if (b) irAPestana(b.dataset.pestana!);
+});
+
+// ---------- Espacios culturales ----------
+const grupos = new Map<string, L.LayerGroup>();
+const visibles = new Set(CAPAS_CULTURA.filter((c) => c.visible).map((c) => c.id));
+let espacios: EspacioFeature[] = [];
+let ocultarPuntosPorCalor = false;
 
 function filtrados(): EspacioFeature[] {
-  const q = norm((document.getElementById('buscar') as HTMLInputElement).value.trim());
-  const barrio = (document.getElementById('barrio') as HTMLSelectElement).value;
-  return todos.filter(({ properties: p }) => {
+  const q = norm(($('buscar') as HTMLInputElement).value.trim());
+  const barrio = ($('barrio') as HTMLSelectElement).value;
+  return espacios.filter(({ properties: p }) => {
     if (barrio && p.barrio !== barrio) return false;
     if (q && !norm(`${p.nombre} ${p.direccion}`).includes(q)) return false;
     return true;
   });
 }
 
-function dibujar() {
+function dibujarEspacios() {
   const lista = filtrados();
   const porCapa = new Map<string, number>();
   for (const g of grupos.values()) g.clearLayers();
   for (const f of lista) {
     const p = f.properties;
     porCapa.set(p.categoria, (porCapa.get(p.categoria) ?? 0) + 1);
-    const def = CAPAS.find((c) => c.id === p.categoria)!;
+    const def = CAPAS_CULTURA.find((c) => c.id === p.categoria)!;
     const [lon, lat] = f.geometry.coordinates;
-    L.circleMarker([lat, lon], {
-      radius: 5,
-      color: '#fff',
-      weight: 1,
-      fillColor: def.color,
-      fillOpacity: 0.85,
-    })
+    L.circleMarker([lat, lon], { radius: 5, color: '#fff', weight: 1, fillColor: def.color, fillOpacity: 0.85 })
       .bindPopup(() => fichaHTML(p), { maxWidth: 320 })
       .bindTooltip(p.nombre ?? '', { direction: 'top', offset: [0, -4] })
       .addTo(grupos.get(p.categoria)!);
   }
-  for (const c of CAPAS) {
+  for (const c of CAPAS_CULTURA) {
     const el = document.querySelector(`[data-conteo="${c.id}"]`);
     if (el) el.textContent = String(porCapa.get(c.id) ?? 0);
   }
   const enVista = lista.filter((f) => visibles.has(f.properties.categoria)).length;
-  document.getElementById('resumen')!.textContent = `${enVista} espacios visibles de ${todos.length} con ubicación.`;
+  $('resumen').textContent = `${enVista} espacios visibles de ${espacios.length} con ubicación.`;
+  actualizarCalor();
+}
+
+function sincronizarGrupos() {
+  for (const c of CAPAS_CULTURA) {
+    const g = grupos.get(c.id)!;
+    const mostrar = visibles.has(c.id) && !ocultarPuntosPorCalor;
+    if (mostrar && !mapa.hasLayer(g)) g.addTo(mapa);
+    if (!mostrar && mapa.hasLayer(g)) g.remove();
+  }
 }
 
 function armarCapas() {
-  const ul = document.getElementById('capas')!;
-  for (const c of CAPAS) {
-    const g = L.layerGroup();
-    grupos.set(c.id, g);
-    if (c.visible) g.addTo(mapa);
+  const ul = $('capas');
+  for (const c of CAPAS_CULTURA) {
+    grupos.set(c.id, L.layerGroup());
     const li = document.createElement('li');
-    li.innerHTML = `<label><input type="checkbox" ${c.visible ? 'checked' : ''} data-capa="${c.id}" />
+    li.innerHTML = `<label class="check"><input type="checkbox" ${c.visible ? 'checked' : ''} data-capa="${c.id}" />
       <span class="punto" style="background:${c.color}"></span>${c.nombre}
       <span class="conteo" data-conteo="${c.id}">0</span></label>`;
     ul.appendChild(li);
   }
+  sincronizarGrupos();
   ul.addEventListener('change', (e) => {
-    const input = e.target as HTMLInputElement;
-    const id = input.dataset.capa;
+    const id = (e.target as HTMLInputElement).dataset.capa;
     if (!id) return;
-    const g = grupos.get(id)!;
-    if (input.checked) { visibles.add(id); g.addTo(mapa); } else { visibles.delete(id); g.remove(); }
-    dibujar();
+    if ((e.target as HTMLInputElement).checked) visibles.add(id);
+    else visibles.delete(id);
+    sincronizarGrupos();
+    dibujarEspacios();
   });
 }
 
+// ---------- Mapa de calor (etapa 3) ----------
+const pesos = new Map(CAPAS_CULTURA.map((c) => [c.id, c.pesoCalor]));
+let radioCalor = 400; // metros
+const calor = L.heatLayer([], { pane: 'calor', radius: 20, blur: 15, maxZoom: 15, minOpacity: 0.25 } as L.HeatMapOptions);
+
+function metrosAPixeles(m: number) {
+  const lat = mapa.getCenter().lat;
+  const mpp = (156543.03392 * Math.cos((lat * Math.PI) / 180)) / 2 ** mapa.getZoom();
+  return Math.max(2, m / mpp);
+}
+
+function actualizarCalor() {
+  if (!mapa.hasLayer(calor)) return;
+  const puntos: L.HeatLatLngTuple[] = [];
+  for (const f of filtrados()) {
+    const w = pesos.get(f.properties.categoria) ?? 0;
+    if (w > 0) puntos.push([f.geometry.coordinates[1], f.geometry.coordinates[0], w]);
+  }
+  const r = metrosAPixeles(radioCalor);
+  // max relativo: evita que un solo punto sature el color
+  calor.setOptions({ radius: r, blur: r * 0.8, max: Math.max(1, Math.max(...pesos.values())) * 3 });
+  calor.setLatLngs(puntos);
+}
+
+function armarCalor() {
+  const ul = $('calor-pesos');
+  for (const c of CAPAS_CULTURA) {
+    const li = document.createElement('li');
+    li.innerHTML = `<label><span class="punto" style="background:${c.color}"></span>${c.nombre.split(' (')[0]}
+      <input type="range" min="0" max="3" step="0.5" value="${c.pesoCalor}" data-peso="${c.id}" />
+      <output data-peso-valor="${c.id}">${c.pesoCalor}</output></label>`;
+    ul.appendChild(li);
+  }
+  ul.addEventListener('input', (e) => {
+    const input = e.target as HTMLInputElement;
+    const id = input.dataset.peso;
+    if (!id) return;
+    pesos.set(id, Number(input.value));
+    document.querySelector(`[data-peso-valor="${id}"]`)!.textContent = input.value;
+    actualizarCalor();
+  });
+  $('calor-activo').addEventListener('change', (e) => {
+    const on = (e.target as HTMLInputElement).checked;
+    $('calor-opciones').hidden = !on;
+    if (on) calor.addTo(mapa);
+    else calor.remove();
+    ocultarPuntosPorCalor = on && ($('calor-ocultar-puntos') as HTMLInputElement).checked;
+    sincronizarGrupos();
+    actualizarCalor();
+  });
+  $('calor-ocultar-puntos').addEventListener('change', (e) => {
+    ocultarPuntosPorCalor = (e.target as HTMLInputElement).checked && mapa.hasLayer(calor);
+    sincronizarGrupos();
+  });
+  $('calor-radio').addEventListener('input', (e) => {
+    radioCalor = Number((e.target as HTMLInputElement).value);
+    $('calor-radio-valor').textContent = metros(radioCalor);
+    actualizarCalor();
+  });
+  mapa.on('zoomend', actualizarCalor);
+}
+
 function armarPendientes(lista: Espacio[]) {
-  document.getElementById('n-pendientes')!.textContent = String(lista.length);
-  const ul = document.getElementById('pendientes')!;
+  $('n-pendientes').textContent = String(lista.length);
+  const ul = $('pendientes');
   for (const p of lista) {
     const li = document.createElement('li');
     li.textContent = `${p.nombre ?? '(sin nombre)'} · ${p.categoria_original ?? ''} · ${p.direccion ?? 'sin dirección'}`;
@@ -90,32 +189,65 @@ function armarPendientes(lista: Espacio[]) {
   }
 }
 
+async function cargar(): Promise<Datos> {
+  const base = import.meta.env.BASE_URL;
+  const j = <T>(f: string) => fetch(`${base}data/${f}`).then((r) => {
+    if (!r.ok) throw new Error(`${f}: ${r.status}`);
+    return r.json() as Promise<T>;
+  });
+  const [esp, espPend, trans, barrios, inm, inmPend] = await Promise.all([
+    j<Coleccion<EspacioFeature>>('espacios-culturales.geojson'),
+    j<Espacio[]>('espacios-sin-coordenadas.json'),
+    j<Coleccion<TransporteFeature>>('transporte.geojson'),
+    j<Coleccion<BarrioFeature>>('barrios.geojson'),
+    j<Coleccion<InmuebleFeature>>('inmuebles.geojson'),
+    j<Inmueble[]>('inmuebles-pendientes.json'),
+  ]);
+  return {
+    espacios: esp.features,
+    espaciosPendientes: espPend,
+    transporte: trans.features,
+    barrios: barrios.features,
+    inmuebles: inm.features,
+    inmueblesPendientes: inmPend,
+  };
+}
+
 async function iniciar() {
   armarCapas();
-  const base = import.meta.env.BASE_URL;
-  const [col, pend] = await Promise.all([
-    fetch(`${base}data/espacios-culturales.geojson`).then((r) => r.json() as Promise<Coleccion>),
-    fetch(`${base}data/espacios-sin-coordenadas.json`).then((r) => r.json() as Promise<Espacio[]>),
-  ]);
-  todos = col.features;
+  armarCalor();
+  const datos = await cargar();
+  espacios = datos.espacios;
 
-  const barrios = [...new Set(todos.map((f) => f.properties.barrio).filter(Boolean))].sort() as string[];
-  const sel = document.getElementById('barrio') as HTMLSelectElement;
+  const barrios = [...new Set(espacios.map((f) => f.properties.barrio).filter(Boolean))].sort() as string[];
+  const sel = $('barrio') as HTMLSelectElement;
   for (const b of barrios) sel.add(new Option(b, b));
 
-  armarPendientes(pend);
-  dibujar();
+  armarPendientes(datos.espaciosPendientes);
+  dibujarEspacios();
+
+  montarTransporte(mapa, datos);
+  montarBarrios(mapa, datos);
+  const zona = montarZona(mapa, datos, irAPestana);
+  const eco = montarEconomia(datos);
+  montarInmuebles(mapa, datos, {
+    analizar: (id) => zona.analizarInmueble(id),
+    simular: (id) => { eco.seleccionar(id); irAPestana('economia'); },
+  });
 
   let t: number | undefined;
-  document.getElementById('buscar')!.addEventListener('input', () => { clearTimeout(t); t = window.setTimeout(dibujar, 200); });
-  sel.addEventListener('change', dibujar);
-  document.getElementById('toggle-panel')!.addEventListener('click', () => {
-    document.getElementById('app')!.classList.toggle('sin-panel');
+  $('buscar').addEventListener('input', () => {
+    clearTimeout(t);
+    t = window.setTimeout(dibujarEspacios, 200);
+  });
+  sel.addEventListener('change', dibujarEspacios);
+  $('toggle-panel').addEventListener('click', () => {
+    $('app').classList.toggle('sin-panel');
     setTimeout(() => mapa.invalidateSize(), 200);
   });
 }
 
 iniciar().catch((e) => {
   console.error(e);
-  document.getElementById('resumen')!.textContent = 'Error al cargar los datos.';
+  $('resumen').textContent = 'Error al cargar los datos.';
 });

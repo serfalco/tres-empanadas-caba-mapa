@@ -13,30 +13,143 @@
           <h1>Mapa cultural CABA</h1>
           <p class="sub">Tres Empanadas · investigación de sede</p>
         </header>
-        <section>
-          <label class="campo">
-            <span>Buscar</span>
-            <input id="buscar" type="search" placeholder="Nombre o dirección" autocomplete="off" />
-          </label>
-          <label class="campo">
-            <span>Barrio</span>
-            <select id="barrio"><option value="">Todos</option></select>
-          </label>
-        </section>
-        <section>
-          <h2>Capas</h2>
-          <ul id="capas"></ul>
-        </section>
-        <section>
-          <p id="resumen" class="nota"></p>
+
+        <nav class="pestanas" role="tablist">
+          <button role="tab" data-pestana="mapa" aria-selected="true">Mapa</button>
+          <button role="tab" data-pestana="inmuebles" aria-selected="false">Inmuebles</button>
+          <button role="tab" data-pestana="zona" aria-selected="false">Zonas</button>
+          <button role="tab" data-pestana="economia" aria-selected="false">Economía</button>
+        </nav>
+
+        <!-- MAPA: capas, calor, transporte, barrios -->
+        <div class="vista" data-vista="mapa">
+          <section>
+            <label class="campo">
+              <span>Buscar espacio</span>
+              <input id="buscar" type="search" placeholder="Nombre o dirección" autocomplete="off" />
+            </label>
+            <label class="campo">
+              <span>Barrio</span>
+              <select id="barrio"><option value="">Todos</option></select>
+            </label>
+          </section>
+
+          <section>
+            <h2>Espacios culturales</h2>
+            <ul id="capas" class="lista-capas"></ul>
+            <p id="resumen" class="nota"></p>
+          </section>
+
+          <section>
+            <h2>Mapa de calor</h2>
+            <label class="check"><input type="checkbox" id="calor-activo" /> Mostrar densidad de oferta cultural</label>
+            <div id="calor-opciones" class="sub-bloque" hidden>
+              <label class="campo">
+                <span>Radio de influencia: <strong id="calor-radio-valor">400 m</strong></span>
+                <input id="calor-radio" type="range" min="100" max="1500" step="50" value="400" />
+              </label>
+              <p class="nota">Peso de cada categoría (0 = no cuenta):</p>
+              <ul id="calor-pesos" class="pesos"></ul>
+              <label class="check"><input type="checkbox" id="calor-ocultar-puntos" /> Ocultar puntos mientras se ve el calor</label>
+              <p class="nota aviso">Densidad de oferta no es demanda de público. Mucha oferta puede indicar un circuito consolidado o más competencia; poca, una oportunidad o falta de demanda.</p>
+            </div>
+          </section>
+
+          <section>
+            <h2>Transporte</h2>
+            <ul class="lista-capas">
+              <li><label class="check"><input type="checkbox" id="capa-subte" checked /> Subte: líneas y estaciones</label></li>
+              <li><label class="check"><input type="checkbox" id="capa-tren" /> Tren: líneas y estaciones</label></li>
+            </ul>
+          </section>
+
+          <section>
+            <h2>Indicadores por barrio</h2>
+            <label class="campo">
+              <span>Colorear barrios por</span>
+              <select id="indicador-barrio">
+                <option value="">Ninguno</option>
+                <option value="cultura_km2">Espacios culturales por km²</option>
+                <option value="teatro_km2">Teatros por km²</option>
+                <option value="cultura_hab">Espacios culturales cada 10.000 hab.</option>
+                <option value="densidad">Densidad de población (hab./km², 2010)</option>
+                <option value="estaciones">Estaciones de subte y tren</option>
+              </select>
+            </label>
+            <div id="leyenda-barrio" class="leyenda"></div>
+          </section>
+
           <details>
-            <summary>Sin coordenadas válidas (<span id="n-pendientes">0</span>)</summary>
+            <summary>Espacios sin coordenadas válidas (<span id="n-pendientes">0</span>)</summary>
             <ul id="pendientes" class="pendientes"></ul>
           </details>
-        </section>
+        </div>
+
+        <!-- INMUEBLES -->
+        <div class="vista" data-vista="inmuebles" hidden>
+          <section>
+            <label class="check"><input type="checkbox" id="capa-inmuebles" checked /> Mostrar inmuebles en el mapa</label>
+            <label class="campo">
+              <span>Alquiler máximo: <strong id="filtro-alquiler-valor">$1.500.000</strong></span>
+              <input id="filtro-alquiler" type="range" min="300000" max="1500000" step="50000" value="1500000" />
+            </label>
+            <label class="campo">
+              <span>Superficie mínima: <strong id="filtro-m2-valor">60 m²</strong></span>
+              <input id="filtro-m2" type="range" min="60" max="300" step="10" value="60" />
+            </label>
+          </section>
+          <section>
+            <h2>Oportunidades</h2>
+            <div id="lista-inmuebles"></div>
+          </section>
+          <section>
+            <h2>Sin ubicación verificada</h2>
+            <ul id="inmuebles-pendientes" class="pendientes"></ul>
+          </section>
+          <p class="nota">Fuente: planilla Oportunidades, exportada el 2026-11-23. Ubicación con el normalizador USIG del GCBA. Alquileres y disponibilidad cambian rápido: confirmar antes de decidir.</p>
+        </div>
+
+        <!-- ZONAS -->
+        <div class="vista" data-vista="zona" hidden>
+          <section>
+            <p class="nota">Tocá <strong>Elegir punto</strong> y después el mapa, o usá <em>Analizar entorno</em> en la ficha de un inmueble.</p>
+            <label class="campo">
+              <span>Radio: <strong id="zona-radio-valor">800 m</strong></span>
+              <input id="zona-radio" type="range" min="300" max="2000" step="100" value="800" />
+            </label>
+            <button type="button" id="zona-elegir" class="boton">Elegir punto en el mapa</button>
+          </section>
+          <section id="zona-resultado"></section>
+          <section>
+            <h2>Comparador</h2>
+            <div id="comparador"><p class="nota">Agregá hasta 4 zonas o inmuebles para compararlos.</p></div>
+          </section>
+        </div>
+
+        <!-- ECONOMÍA -->
+        <div class="vista" data-vista="economia" hidden>
+          <section>
+            <p class="nota aviso">Los valores precargados son supuestos de ejemplo para editar, no proyecciones. Ningún ingreso está garantizado.</p>
+            <label class="campo">
+              <span>Inmueble</span>
+              <select id="eco-inmueble"></select>
+            </label>
+          </section>
+          <section id="eco-resultado"></section>
+          <section>
+            <h2>Supuestos</h2>
+            <div id="eco-supuestos"></div>
+            <button type="button" id="eco-restablecer" class="boton secundario">Restablecer supuestos</button>
+          </section>
+          <section>
+            <h2>Comparar inmuebles con estos supuestos</h2>
+            <div id="eco-comparacion"></div>
+          </section>
+        </div>
+
         <footer class="nota">
-          Datos: <a href="https://data.buenosaires.gob.ar/dataset/espacios-culturales" target="_blank" rel="noopener">BA Data, Ministerio de Cultura GCBA</a> (CC-BY 2.5 AR). Sin verificación propia.
-          Cartografía © colaboradores de OpenStreetMap.
+          Datos: <a href="https://data.buenosaires.gob.ar/" target="_blank" rel="noopener">BA Data (GCBA)</a>, CC-BY 2.5 AR. Sin verificación propia salvo indicación.
+          Cartografía © colaboradores de OpenStreetMap, © CARTO.
         </footer>
       </aside>
       <button id="toggle-panel" aria-label="Mostrar u ocultar panel">☰</button>

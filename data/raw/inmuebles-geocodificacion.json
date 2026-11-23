@@ -1,0 +1,52 @@
+{
+  "_fuente": "USIG Normalizador de direcciones GCBA (servicios.usig.buenosaires.gob.ar/normalizar), srid 4326",
+  "_fecha": "2026-11-23",
+  "Formosa 587": {
+    "consulta": "Formosa 587",
+    "normalizada": "FORMOSA 587, CABA",
+    "lat": -34.621398,
+    "lon": -58.436618,
+    "tipo": "calle_altura",
+    "nota": null
+  },
+  "Punta Arenas 1866": {
+    "consulta": "Punta Arenas 1866",
+    "normalizada": "PUNTA ARENAS 1866, CABA",
+    "lat": -34.601974,
+    "lon": -58.472344,
+    "tipo": "calle_altura",
+    "nota": null
+  },
+  "Uruguay 73": {
+    "consulta": "Uruguay 73",
+    "normalizada": "URUGUAY 73, CABA",
+    "lat": -34.608021,
+    "lon": -58.386269,
+    "tipo": "calle_altura",
+    "nota": null
+  },
+  "J. V. González y J. B. Justo": {
+    "consulta": "Joaquin V. Gonzalez y Juan B. Justo",
+    "normalizada": "GONZALEZ, JOAQUIN V. y JUSTO, JUAN B. AV., CABA",
+    "lat": -34.624108,
+    "lon": -58.48339,
+    "tipo": "calle_y_calle",
+    "nota": "Esquina: ubicación aproximada del inmueble"
+  },
+  "Gral. M. A. Rodríguez 1600": {
+    "consulta": "M. A. Rodriguez 1600",
+    "normalizada": "RODRIGUEZ, MANUEL A., GENERAL 1600, CABA",
+    "lat": -34.604276,
+    "lon": -58.451555,
+    "tipo": "calle_altura",
+    "nota": "Calle interpretada como Gral. Manuel A. Rodríguez; confirmar con el aviso"
+  },
+  "Bonorino 3156": {
+    "consulta": "Bonorino 3156",
+    "normalizada": "BONORINO, ESTEBAN, CNEL. AV. 3156, CABA",
+    "lat": -34.656884,
+    "lon": -58.429167,
+    "tipo": "calle_altura",
+    "nota": "Elegida Av. Cnel. Esteban Bonorino (coincide con Nueva Pompeya); existe otra Bonorino en Saavedra"
+  }
+}

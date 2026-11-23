@@ -8,13 +8,15 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "datos": "node scripts/normalizar-espacios.mjs"
+    "datos": "node scripts/normalizar-espacios.mjs && node scripts/preparar-territorio.mjs"
   },
   "dependencies": {
-    "leaflet": "^1.9.4"
+    "leaflet": "^1.9.4",
+    "leaflet.heat": "^0.2.0"
   },
   "devDependencies": {
     "@types/leaflet": "1.9",
+    "@types/leaflet.heat": "^0.2.5",
     "typescript": "^5.9.3",
     "vite": "^6.4.6"
   }
