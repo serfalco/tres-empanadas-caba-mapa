@@ -34,13 +34,26 @@
   - Todos los valores por defecto son supuestos de ejemplo y se guardan en `localStorage` de cada navegador. No hay datos de mercado detrás.
 - **Inmuebles sin expensas informadas** suman 0 de expensas, y se avisa en pantalla.
 
+## 2026-11-23 · Colectivos, planilla en vivo y publicación
+
+- **Colectivos:** se usan las paradas de BA Data, cada una con sus líneas. La capa se ve desde zoom 14, para no dibujar 7.000 puntos a escala ciudad.
+  - En el análisis de zona se cuentan las líneas distintas con parada a menos de 400 m (distancia caminable), independientemente del radio elegido.
+  - Por barrio se cuentan las líneas distintas con parada dentro del polígono.
+  - No se usaron los recorridos (más pesados) ni el GTFS: con las paradas alcanza para medir accesibilidad.
+- **Metrobus:** corredores y paradas en una capa propia.
+- **Planilla en vivo:** sin backend ni credenciales. Se lee el export CSV público (gviz) de la planilla, porque está compartida por enlace.
+  - Geocodificación en el navegador con USIG (permite CORS). Un resultado sólo se acepta si cae en el barrio informado, para evitar homónimos (como las dos calles Bonorino).
+  - Los resultados se cachean en `localStorage`.
+  - La geocodificación manual verificada tiene prioridad.
+- **Publicación:** Cloudflare Pages, proyecto `mapa-tres-caba` conectado a GitHub. Mientras el PR no se fusione, la rama de producción es la rama de trabajo. Al fusionar, hay que volver a poner `main`.
+
 ## Limitaciones conocidas
 
-- No hay datos de colectivos ni de transporte nocturno.
+- No hay frecuencias ni datos de servicio nocturno de colectivos.
 - La población es del Censo 2010.
 - No hay datos de seguridad, circulación peatonal ni habilitaciones: deben relevarse en recorrida.
-- La sincronización con la planilla es manual (exportar CSV y geocodificar). Una sincronización automática requeriría un Worker con credenciales, que no conviene exponer en el navegador.
-- El sitio todavía no está protegido. El despliegue previsto es Cloudflare Pages + Access.
+- La sincronización en vivo depende de que la planilla siga compartida por enlace. Si se restringe, el sitio usa la copia incluida.
+- El sitio todavía no está protegido: falta configurar Cloudflare Access.
 
 ## Pendiente de decidir
 

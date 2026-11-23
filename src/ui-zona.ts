@@ -29,7 +29,8 @@ function resultadoHTML(z: AnalisisZona): string {
     <div class="dimension"><h3>B. Conectividad</h3>
       <p>Estaciones de subte en el radio: <strong>${z.subteEnRadio}</strong>${z.lineasSubte.length ? ` (líneas ${z.lineasSubte.join(', ')})` : ''} · Tren: <strong>${z.trenEnRadio}</strong></p>
       <p class="nota">Subte más cercano: ${cercano(z.subteMasCercano)}<br>Tren más cercano: ${cercano(z.trenMasCercano)}</p>
-      <p class="nota">Colectivos y transporte nocturno: todavía no incorporados.</p>
+      <p>Colectivo: <strong>${z.lineasColectivo}</strong> líneas con parada a menos de 400 m (${z.paradasColectivo} paradas) · Metrobus en el radio: ${z.metrobusEnRadio}</p>
+      <p class="nota">Frecuencias y servicio nocturno: todavía no incorporados.</p>
     </div>
     <div class="dimension"><h3>C. Potencial barrial</h3>
       <p>Densidad del barrio (2010): <strong>${num(z.densidad2010)}</strong> hab./km²</p>
@@ -112,6 +113,7 @@ export function montarZona(mapa: L.Map, datos: Datos, irAPestana: (id: string) =
           <tr class="grupo"><th colspan="${comparar.length + 1}">B. Conectividad</th></tr>
           <tr><th>Estaciones de subte</th>${col((z) => String(z.subteEnRadio))}</tr>
           <tr><th>Estaciones de tren</th>${col((z) => String(z.trenEnRadio))}</tr>
+          <tr><th>Líneas de colectivo (400 m)</th>${col((z) => String(z.lineasColectivo))}</tr>
           <tr><th>Subte más cercano</th>${col((z) => (z.subteMasCercano ? metros(z.subteMasCercano.distancia) : '—'))}</tr>
           <tr class="grupo"><th colspan="${comparar.length + 1}">C. Barrial</th></tr>
           <tr><th>Densidad 2010</th>${col((z) => num(z.densidad2010))}</tr>

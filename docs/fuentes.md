@@ -6,6 +6,8 @@
 | [BA Data, Estaciones de subte](https://data.buenosaires.gob.ar/dataset/subte-estaciones) (SBASE) | Capa F: estaciones y red | CC-BY 2.5 AR | 2026-11-06 | 2026-11-23 | Importado |
 | [BA Data, Estaciones de ferrocarril](https://data.buenosaires.gob.ar/dataset/estaciones-ferrocarril) | Capa F: estaciones y red | CC-BY 2.5 AR | Estaciones 2026-11-06, red 2019-09-16 | 2026-11-23 | Importado (recortado a CABA) |
 | [BA Data, Barrios](https://data.buenosaires.gob.ar/dataset/barrios) | Límites, área y población por barrio | CC-BY 2.5 AR | Límites 2026-11-17, población Censo 2010 | 2026-11-23 | Importado |
+| [BA Data, Paradas de colectivo](https://data.buenosaires.gob.ar/dataset/colectivos-paradas) | Paradas y líneas por parada | CC-BY 2.5 AR | 2026-09-21 | 2026-11-23 | Importado (7.000 paradas aprox.) |
+| [BA Data, Metrobus](https://data.buenosaires.gob.ar/dataset/metrobus) | Corredores y paradas | CC-BY 2.5 AR | 2026-06-23 | 2026-11-23 | Importado |
 | [Normalizador USIG](https://servicios.usig.buenosaires.gob.ar/normalizar/) (GCBA) | Geocodificación de inmuebles | Servicio público del GCBA | Consulta 2026-11-23 | — | Usado para 6 direcciones |
 | [Indicadores de Cultura Independiente](https://indicadoresculturaindependiente.ar/) | Salas independientes | A verificar | — | — | Pendiente |
 | [Alternativa Teatral](https://www.alternativateatral.com/) | Salas y programación | A verificar (términos de uso) | — | — | Pendiente |

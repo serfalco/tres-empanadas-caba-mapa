@@ -9,9 +9,9 @@ Herramienta interactiva para analizar CABA (oferta cultural, transporte e inmueb
 | 1. Datos culturales | ✅ Inventario inicial: dataset oficial "Espacios culturales" (3.053 registros, 3.031 con coordenadas) |
 | 2. Mapa interactivo | ✅ MVP: capas A–E, búsqueda, filtro por barrio, fichas con fuente |
 | 3. Mapa de calor | ✅ Densidad por categoría con pesos y radio de influencia en metros |
-| 4. Transporte e inmuebles | ✅ Subte y tren (líneas y estaciones). Inmuebles de la planilla con filtros de alquiler y superficie (6 ubicados, 2 pendientes) |
+| 4. Transporte e inmuebles | ✅ Subte, tren, metrobus y unas 7.000 paradas de colectivo. Inmuebles de la planilla con filtros de alquiler y superficie (6 ubicados, 2 pendientes) |
 | 5. Evaluación territorial | ✅ Análisis de microzona en 5 dimensiones, coropletas por barrio y comparador con puntaje configurable |
-| 6. Economía y seguimiento | ✅ Simulador por inmueble con 3 escenarios, ocupación de equilibrio y comparación entre inmuebles. Falta la sincronización automática con la planilla |
+| 6. Economía y seguimiento | ✅ Simulador por inmueble con 3 escenarios, ocupación de equilibrio y comparación entre inmuebles. La planilla se sincroniza en vivo |
 
 ## Uso local
 
@@ -31,6 +31,14 @@ npm run build     # verifica tipos y genera dist/
 4. Revisar el resumen que imprime el script y commitear.
 
 ## Actualizar los inmuebles
+
+**Automático:** el sitio lee la planilla "Oportunidades" en vivo cada vez que se abre (export CSV de Google Sheets, sin credenciales). Requiere que la planilla siga compartida como "cualquier persona con el enlace puede ver".
+- Las direcciones nuevas se ubican solas con USIG, sólo si el resultado cae en el barrio informado (o a menos de 300 m). Quedan marcadas como "ubicación automática: verificar".
+- Las que no se pueden ubicar sin ambigüedad pasan a "Sin ubicación verificada".
+- Si la planilla no responde, se usa la copia incluida.
+- Para usar otra planilla o URL, definir `VITE_PLANILLA_CSV` en el build.
+
+**Copia incluida (respaldo):**
 
 1. Exportar la pestaña "Oportunidades" de la planilla como CSV y reemplazar `data/raw/inmuebles-oportunidades.csv`.
 2. Para cada dirección nueva, consultar el normalizador USIG del GCBA (desde el navegador):
@@ -56,6 +64,10 @@ docs/              especificación, fuentes y decisiones técnicas
 ```
 
 ## Despliegue (Cloudflare Pages + Access)
+
+Publicado en **https://mapa-tres-caba.pages.dev**, proyecto `mapa-tres-caba` conectado a este repositorio: cada push vuelve a publicar el sitio. Todavía no tiene acceso restringido.
+
+Pasos para recrearlo:
 
 1. En Cloudflare, ir a Workers & Pages, luego Create, Pages, y conectar este repositorio.
 2. Configurar el build: comando `npm run build`, salida `dist`, Node 20 o superior.

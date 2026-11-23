@@ -26,6 +26,9 @@ export interface AnalisisZona {
   subteEnRadio: number;
   lineasSubte: string[];
   trenEnRadio: number;
+  lineasColectivo: number; // líneas distintas con parada a menos de 400 m
+  paradasColectivo: number;
+  metrobusEnRadio: number;
   subteMasCercano: Cercano | null;
   trenMasCercano: Cercano | null;
   // C. Potencial barrial
@@ -84,6 +87,17 @@ export function analizarZona(datos: Datos, centro: [number, number], radio: numb
   const subteEnRadio = enRadio(subtes);
   const trenEnRadio = enRadio(trenes);
 
+  const RADIO_CAMINATA = 400;
+  const lineasCol = new Set<string>();
+  let paradasCol = 0;
+  for (const [lon, lat, lineas] of datos.colectivos.paradas) {
+    if (distancia(centro, [lon, lat]) <= RADIO_CAMINATA) {
+      paradasCol++;
+      for (const l of lineas.split(',')) lineasCol.add(l);
+    }
+  }
+  const metrobusEnRadio = enRadio(datos.transporte.filter((t) => t.properties.tipo === 'metrobus_estacion')).length;
+
   const barrio = barrioDe(centro, datos.barrios);
 
   const inmuebles = datos.inmuebles
@@ -103,7 +117,8 @@ export function analizarZona(datos: Datos, centro: [number, number], radio: numb
   const trenCerca = masCercano(centro, trenes, (t) => t.properties.linea ?? '');
 
   const obs: string[] = [];
-  if (!subteCerca || subteCerca.distancia > 800) obs.push('No hay subte a menos de 800 m: la llegada desde otros barrios depende de colectivo o tren.');
+  if (!subteCerca || subteCerca.distancia > 800) obs.push(`No hay subte a menos de 800 m: la llegada desde otros barrios depende de colectivo (${lineasCol.size} líneas a 400 m) o tren.`);
+  if (lineasCol.size < 5) obs.push('Pocas líneas de colectivo a distancia caminable (menos de 5 a 400 m).');
   if (totalCultura === 0) obs.push('Sin espacios culturales registrados en el radio. Puede ser un vacío de oferta o falta de demanda: verificar en recorrida.');
   if ((porCategoria.teatro ?? 0) >= 15) obs.push(`Alta concentración de teatros (${porCategoria.teatro}): circuito consolidado, pero también más competencia.`);
   if (barrio?.properties.densidad_2010 && barrio.properties.densidad_2010 < 10000) obs.push('Densidad residencial baja (Censo 2010): menos público que llegue caminando.');
@@ -121,6 +136,9 @@ export function analizarZona(datos: Datos, centro: [number, number], radio: numb
     subteEnRadio: subteEnRadio.length,
     lineasSubte: [...new Set(subteEnRadio.map((t) => t.properties.linea ?? ''))].filter(Boolean).sort(),
     trenEnRadio: trenEnRadio.length,
+    lineasColectivo: lineasCol.size,
+    paradasColectivo: paradasCol,
+    metrobusEnRadio,
     subteMasCercano: subteCerca,
     trenMasCercano: trenCerca,
     barrio: barrio?.properties.nombre ?? null,
@@ -150,7 +168,7 @@ export const PESOS_DEFECTO: Pesos = { cultura: 1, conectividad: 1, barrial: 1, e
 export function puntuar(zonas: AnalisisZona[], pesos: Pesos): number[] {
   const dims = zonas.map((z) => ({
     cultura: z.totalCultura * (0.5 + z.diversidad / 2),
-    conectividad: z.subteEnRadio * 2 + z.trenEnRadio + (z.subteMasCercano ? Math.max(0, 1 - z.subteMasCercano.distancia / 1500) * 3 : 0),
+    conectividad: z.subteEnRadio * 2 + z.trenEnRadio + z.metrobusEnRadio * 0.5 + z.lineasColectivo / 5 + (z.subteMasCercano ? Math.max(0, 1 - z.subteMasCercano.distancia / 1500) * 3 : 0),
     barrial: (z.densidad2010 ?? 0) / 10000 + z.equipamientoComunitario / 10,
     // menor alquiler por m² es mejor; sin dato = neutro
     economia: z.alquilerM2Promedio ? -z.alquilerM2Promedio : NaN,

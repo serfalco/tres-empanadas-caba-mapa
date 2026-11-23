@@ -63,7 +63,7 @@ export interface InmuebleFeature {
 }
 
 export interface TransporteProps {
-  tipo: 'subte_estacion' | 'subte_linea' | 'tren_estacion' | 'tren_linea';
+  tipo: 'subte_estacion' | 'subte_linea' | 'tren_estacion' | 'tren_linea' | 'metrobus_estacion' | 'metrobus_linea';
   nombre: string;
   linea?: string;
   ramal?: string;
@@ -91,6 +91,7 @@ export interface BarrioProps {
   cultura: Record<string, number>;
   estaciones_subte: number;
   estaciones_tren: number;
+  lineas_colectivo: number;
   fuente: string;
   enlace: string;
   fecha_fuente: string;
@@ -103,7 +104,16 @@ export interface BarrioFeature {
   properties: BarrioProps;
 }
 
+export interface Colectivos {
+  fuente: string;
+  enlace: string;
+  licencia: string;
+  fecha_fuente: string;
+  paradas: [number, number, string][];
+}
+
 export interface Datos {
+  colectivos: Colectivos;
   espacios: EspacioFeature[];
   espaciosPendientes: Espacio[];
   transporte: TransporteFeature[];

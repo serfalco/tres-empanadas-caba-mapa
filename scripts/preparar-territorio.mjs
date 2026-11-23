@@ -75,7 +75,48 @@ for (const f of leer('tren-red.geojson').features) {
     }
   }
 }
+// Metrobus: estaciones (paradas) y corredores
+const lineasDe = (pr) => [1, 2, 3, 4, 5, 6].map((i) => (pr[`L${i}`] ?? '').toString().trim()).filter(Boolean);
+for (const f of leer('metrobus-estaciones.geojson').features) {
+  transporte.push({
+    type: 'Feature',
+    geometry: { type: 'Point', coordinates: f.geometry.coordinates.map(r5) },
+    properties: { tipo: 'metrobus_estacion', nombre: f.properties['NOMBRE PAR'] ?? f.properties.DIRECCION, linea: lineasDe(f.properties).join(', '), ...FUENTE_BA('metrobus', '2026-06-23') },
+  });
+}
+for (const f of leer('metrobus-recorridos.geojson').features) {
+  const partes = f.geometry.type === 'LineString' ? [f.geometry.coordinates] : f.geometry.coordinates;
+  for (const parte of partes) {
+    if (parte.length < 2) continue;
+    transporte.push({
+      type: 'Feature',
+      geometry: { type: 'LineString', coordinates: parte.map((c) => c.slice(0, 2).map(r5)) },
+      properties: { tipo: 'metrobus_linea', nombre: f.properties.METROBUS, ...FUENTE_BA('metrobus', '2026-06-23') },
+    });
+  }
+}
 escribir('transporte.geojson', { type: 'FeatureCollection', features: transporte });
+
+// Colectivos: paradas compactas [lon, lat, "líneas separadas por coma"]
+const paradasTxt = readFileSync('data/raw/colectivos-paradas.csv', 'utf8').replace(/^\uFEFF/, '');
+const [cabP, ...filasP] = parseCSV(paradasTxt);
+const iP = (c) => cabP.indexOf(c);
+const paradas = [];
+for (const r of filasP) {
+  const lon = Number(r[iP('coord_X')]);
+  const lat = Number(r[iP('coord_Y')]);
+  if (!dentro([lon, lat])) continue;
+  const lineas = [1, 2, 3, 4, 5, 6].map((i) => (r[iP(`L${i}`)] ?? '').trim()).filter(Boolean);
+  if (lineas.length) paradas.push([r5(lon), r5(lat), lineas.join(',')]);
+}
+escribir('colectivos.json', {
+  fuente: 'Datos Abiertos BA (GCBA)',
+  enlace: 'https://data.buenosaires.gob.ar/dataset/colectivos-paradas',
+  licencia: 'CC-BY-2.5-AR',
+  fecha_fuente: '2026-09-21',
+  campos: ['lon', 'lat', 'lineas'],
+  paradas,
+});
 
 // ---------- Barrios ----------
 // Nombres que difieren entre datasets
@@ -119,6 +160,7 @@ const barrios = leer('barrios.geojson').features.map((f) => {
       cultura,
       estaciones_subte: est('subte_estacion'),
       estaciones_tren: est('tren_estacion'),
+      lineas_colectivo: new Set(paradas.filter((pp) => enPoligono([pp[0], pp[1]], f.geometry)).flatMap((pp) => pp[2].split(','))).size,
       nombre: f.properties.nombre,
       clave: norm(f.properties.nombre),
       comuna: f.properties.comuna,
@@ -188,6 +230,7 @@ filas.forEach((r, i) => {
 });
 escribir('inmuebles.geojson', { type: 'FeatureCollection', features: inmuebles });
 escribir('inmuebles-pendientes.json', pendientes);
+escribir('inmuebles-geocodificacion.json', geo);
 
 console.log(`Transporte: ${transporte.length} elementos`);
 console.log(`Barrios: ${barrios.length} (sin población: ${sinPob.join(', ') || 'ninguno'})`);

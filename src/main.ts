@@ -10,7 +10,8 @@ import { montarEconomia } from './ui-economia';
 import { montarInmuebles } from './ui-inmuebles';
 import { montarTransporte } from './ui-transporte';
 import { montarZona } from './ui-zona';
-import type { BarrioFeature, Coleccion, Datos, Espacio, EspacioFeature, Inmueble, InmuebleFeature, TransporteFeature } from './tipos';
+import { cargarPlanilla, type Geocodificacion } from './planilla';
+import type { BarrioFeature, Coleccion, Colectivos, Datos, Espacio, EspacioFeature, Inmueble, InmuebleFeature, TransporteFeature } from './tipos';
 import { $, metros, norm } from './util';
 
 const CENTRO_CABA: L.LatLngExpression = [-34.6118, -58.4173];
@@ -195,21 +196,40 @@ async function cargar(): Promise<Datos> {
     if (!r.ok) throw new Error(`${f}: ${r.status}`);
     return r.json() as Promise<T>;
   });
-  const [esp, espPend, trans, barrios, inm, inmPend] = await Promise.all([
+  const [esp, espPend, trans, barrios, inm, inmPend, colectivos] = await Promise.all([
     j<Coleccion<EspacioFeature>>('espacios-culturales.geojson'),
     j<Espacio[]>('espacios-sin-coordenadas.json'),
     j<Coleccion<TransporteFeature>>('transporte.geojson'),
     j<Coleccion<BarrioFeature>>('barrios.geojson'),
     j<Coleccion<InmuebleFeature>>('inmuebles.geojson'),
     j<Inmueble[]>('inmuebles-pendientes.json'),
+    j<Colectivos>('colectivos.json'),
   ]);
+  // Inmuebles: intentar la planilla en vivo; si falla, quedan los de la copia incluida.
+  let inmuebles = inm.features;
+  let inmueblesPendientes = inmPend;
+  let estado = 'Copia incluida en el sitio (exportada el 2026-11-23). No se pudo leer la planilla en vivo.';
+  try {
+    const geo = await j<Geocodificacion>('inmuebles-geocodificacion.json');
+    const vivo = await cargarPlanilla(barrios.features, geo);
+    if (vivo) {
+      inmuebles = vivo.inmuebles;
+      inmueblesPendientes = vivo.pendientes;
+      estado = vivo.estado.detalle;
+    }
+  } catch (e) {
+    console.warn('Planilla en vivo no disponible', e);
+  }
+  $('estado-planilla').textContent = estado;
+
   return {
     espacios: esp.features,
     espaciosPendientes: espPend,
     transporte: trans.features,
     barrios: barrios.features,
-    inmuebles: inm.features,
-    inmueblesPendientes: inmPend,
+    inmuebles,
+    inmueblesPendientes,
+    colectivos,
   };
 }
 

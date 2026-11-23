@@ -18,6 +18,7 @@ const INDICADORES: Record<string, Indicador> = {
   },
   densidad: { nombre: 'Habitantes por km² (Censo 2010)', valor: (p) => p.densidad_2010, unidad: 'hab./km²' },
   estaciones: { nombre: 'Estaciones de subte y tren', valor: (p) => p.estaciones_subte + p.estaciones_tren, unidad: '' },
+  colectivos: { nombre: 'Líneas de colectivo con parada en el barrio', valor: (p) => p.lineas_colectivo, unidad: 'líneas' },
 };
 
 // Escala secuencial de un solo tono (claro = bajo, oscuro = alto).
@@ -47,6 +48,7 @@ export function fichaBarrioHTML(p: BarrioProps): string {
       <tr><th>Música en vivo</th><td>${c.musica ?? 0}</td></tr>
       <tr><th>Otros espacios</th><td>${c.otros ?? 0}</td></tr>
       <tr><th>Estaciones subte / tren</th><td>${p.estaciones_subte} / ${p.estaciones_tren}</td></tr>
+      <tr><th>Líneas de colectivo</th><td>${p.lineas_colectivo}</td></tr>
     </table>
     <p class="fuente">Límites: BA Data (${esc(p.fecha_fuente)}). Población: ${esc(p.fuente_poblacion)}. Conteos por ubicación dentro del polígono.</p></div>`;
 }

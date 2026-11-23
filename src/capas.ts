@@ -28,4 +28,6 @@ export const COLOR_SUBTE: Record<string, string> = {
 };
 
 export const COLOR_TREN = '#555555';
+export const COLOR_METROBUS = '#00843d';
+export const COLOR_COLECTIVO = '#8a6d3b';
 export const COLOR_INMUEBLE = '#111111';

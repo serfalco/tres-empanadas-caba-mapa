@@ -60,6 +60,8 @@
             <ul class="lista-capas">
               <li><label class="check"><input type="checkbox" id="capa-subte" checked /> Subte: líneas y estaciones</label></li>
               <li><label class="check"><input type="checkbox" id="capa-tren" /> Tren: líneas y estaciones</label></li>
+              <li><label class="check"><input type="checkbox" id="capa-metrobus" /> Metrobus: corredores y paradas</label></li>
+              <li><label class="check"><input type="checkbox" id="capa-colectivos" /> Paradas de colectivo <span class="nota">(visibles desde zoom 14)</span></label></li>
             </ul>
           </section>
 
@@ -74,6 +76,7 @@
                 <option value="cultura_hab">Espacios culturales cada 10.000 hab.</option>
                 <option value="densidad">Densidad de población (hab./km², 2010)</option>
                 <option value="estaciones">Estaciones de subte y tren</option>
+                <option value="colectivos">Líneas de colectivo distintas</option>
               </select>
             </label>
             <div id="leyenda-barrio" class="leyenda"></div>
@@ -106,7 +109,7 @@
             <h2>Sin ubicación verificada</h2>
             <ul id="inmuebles-pendientes" class="pendientes"></ul>
           </section>
-          <p class="nota">Fuente: planilla Oportunidades, exportada el 2026-11-23. Ubicación con el normalizador USIG del GCBA. Alquileres y disponibilidad cambian rápido: confirmar antes de decidir.</p>
+          <p class="nota"><strong id="estado-planilla">Leyendo la planilla…</strong><br>Fuente: planilla Oportunidades. Ubicación con el normalizador USIG del GCBA: las direcciones nuevas se ubican solas si caen en el barrio informado. Alquileres y disponibilidad cambian rápido: confirmar antes de decidir.</p>
         </div>
 
         <!-- ZONAS -->
