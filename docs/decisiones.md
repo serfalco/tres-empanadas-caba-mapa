@@ -49,10 +49,10 @@
 
 ## 2026-11-23 · Acceso restringido
 
-- **Cloudflare Access** (Zero Trust, plan gratuito), organización `tresempanadas.cloudflareaccess.com`, aplicación "Mapa Tres CABA".
-  - Cubre `mapa-tres-caba.pages.dev` y `*.mapa-tres-caba.pages.dev`.
-  - Política: permitir sólo al email del dueño, con login por código de un solo uso enviado al mail.
-  - Sesión de 30 días.
+- Primero se probó Cloudflare Access con código por email. No funcionó porque la organización Zero Trust requiere completar el alta en el panel (plan Free con tarjeta).
+- El dueño eligió una contraseña simple: un middleware de Pages Functions con HTTP Basic Auth. Las credenciales se guardan en variables secretas de Pages y la comparación es en tiempo constante.
+  - Si faltan las variables, el sitio queda cerrado.
+  - Se envía `Cache-Control: private, no-store` para que los datos no queden cacheados.
 
 ## Limitaciones conocidas
 
