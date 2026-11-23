@@ -47,13 +47,19 @@
   - La geocodificación manual verificada tiene prioridad.
 - **Publicación:** Cloudflare Pages, proyecto `mapa-tres-caba` conectado a GitHub. Mientras el PR no se fusione, la rama de producción es la rama de trabajo. Al fusionar, hay que volver a poner `main`.
 
+## 2026-11-23 · Acceso restringido
+
+- **Cloudflare Access** (Zero Trust, plan gratuito), organización `tresempanadas.cloudflareaccess.com`, aplicación "Mapa Tres CABA".
+  - Cubre `mapa-tres-caba.pages.dev` y `*.mapa-tres-caba.pages.dev`.
+  - Política: permitir sólo al email del dueño, con login por código de un solo uso enviado al mail.
+  - Sesión de 30 días.
+
 ## Limitaciones conocidas
 
 - No hay frecuencias ni datos de servicio nocturno de colectivos.
 - La población es del Censo 2010.
 - No hay datos de seguridad, circulación peatonal ni habilitaciones: deben relevarse en recorrida.
 - La sincronización en vivo depende de que la planilla siga compartida por enlace. Si se restringe, el sitio usa la copia incluida.
-- El sitio todavía no está protegido: falta configurar Cloudflare Access.
 
 ## Pendiente de decidir
 

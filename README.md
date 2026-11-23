@@ -65,7 +65,7 @@ docs/              especificación, fuentes y decisiones técnicas
 
 ## Despliegue (Cloudflare Pages + Access)
 
-Publicado en **https://mapa-tres-caba.pages.dev**, proyecto `mapa-tres-caba` conectado a este repositorio: cada push vuelve a publicar el sitio. Todavía no tiene acceso restringido.
+Publicado en **https://mapa-tres-caba.pages.dev**, proyecto `mapa-tres-caba` conectado a este repositorio: cada push vuelve a publicar el sitio. Está protegido con Cloudflare Access: sólo entra el email autorizado, que recibe un código por correo. Esto cubre también las vistas previas `*.mapa-tres-caba.pages.dev`. Para sumar personas, ir a Zero Trust, luego Access, Applications, "Mapa Tres CABA", y agregar emails a la política.
 
 Pasos para recrearlo:
 
