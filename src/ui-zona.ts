@@ -23,7 +23,7 @@ function resultadoHTML(z: AnalisisZona): string {
     <p class="nota">Radio ${metros(z.radio)} · Barrio: ${esc(z.barrio ?? 'fuera de CABA')}</p>
     <div class="dimension"><h3>A. Actividad cultural</h3>
       <table class="tabla-mini">${filasCultura}</table>
-      <p>Total (sin "otros"): <strong>${z.totalCultura}</strong> · Categorías presentes: ${z.categoriasPresentes} de 5 · Diversidad: ${(z.diversidad * 100).toFixed(0)}%</p>
+      <p>Espectáculos (teatro, centros culturales, bares, cine, música): <strong>${z.totalCultura}</strong> · Categorías presentes: ${z.categoriasPresentes} de 5 · Diversidad: ${(z.diversidad * 100).toFixed(0)}%</p>
       <p class="nota">Teatro más cercano: ${z.teatroMasCercano ? `${esc(z.teatroMasCercano.nombre)}, a ${metros(z.teatroMasCercano.distancia)}` : 's/d'}</p>
     </div>
     <div class="dimension"><h3>B. Conectividad</h3>
@@ -34,7 +34,7 @@ function resultadoHTML(z: AnalisisZona): string {
     </div>
     <div class="dimension"><h3>C. Potencial barrial</h3>
       <p>Densidad del barrio (2010): <strong>${num(z.densidad2010)}</strong> hab./km²</p>
-      <p>Otros espacios en el radio (bibliotecas, librerías, formación, museos…): <strong>${z.equipamientoComunitario}</strong></p>
+      <p>Museos, galerías, bibliotecas, librerías, formación y patrimonio en el radio: <strong>${z.equipamientoComunitario}</strong></p>
     </div>
     <div class="dimension"><h3>D. Economía</h3>
       ${inm}

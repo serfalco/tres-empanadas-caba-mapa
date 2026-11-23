@@ -8,7 +8,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "datos": "node scripts/normalizar-espacios.mjs && node scripts/preparar-territorio.mjs"
+    "datos": "node scripts/normalizar-espacios.mjs && node scripts/sumar-osm.mjs && node scripts/preparar-territorio.mjs"
   },
   "dependencies": {
     "leaflet": "^1.9.4",

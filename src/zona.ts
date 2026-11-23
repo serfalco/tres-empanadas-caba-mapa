@@ -2,7 +2,7 @@
 // Los indicadores se presentan por separado (spec §12). La puntuación del
 // comparador es opcional, configurable y no reemplaza la lectura de cada dimensión.
 
-import { CAPAS_CULTURA } from './capas';
+import { PRINCIPALES, SECUNDARIAS } from './capas';
 import type { BarrioFeature, Datos, InmuebleFeature, TransporteFeature } from './tipos';
 import { distancia, enPoligono } from './util';
 
@@ -34,7 +34,7 @@ export interface AnalisisZona {
   // C. Potencial barrial
   barrio: string | null;
   densidad2010: number | null;
-  equipamientoComunitario: number; // bibliotecas, librerías, espacios de formación, etc. ("otros")
+  equipamientoComunitario: number; // museos, bibliotecas, librerías, formación, patrimonio
   // D. Economía
   inmueblesEnRadio: { id: string; direccion: string; alquiler: number | null; m2: number | null }[];
   alquilerM2Promedio: number | null;
@@ -42,7 +42,6 @@ export interface AnalisisZona {
   observaciones: string[];
 }
 
-const PRINCIPALES = CAPAS_CULTURA.filter((c) => c.id !== 'otros').map((c) => c.id);
 
 function masCercano(centro: [number, number], items: TransporteFeature[], detalle: (t: TransporteFeature) => string): Cercano | null {
   let mejor: Cercano | null = null;
@@ -143,7 +142,7 @@ export function analizarZona(datos: Datos, centro: [number, number], radio: numb
     trenMasCercano: trenCerca,
     barrio: barrio?.properties.nombre ?? null,
     densidad2010: barrio?.properties.densidad_2010 ?? null,
-    equipamientoComunitario: porCategoria.otros ?? 0,
+    equipamientoComunitario: SECUNDARIAS.reduce((t, c) => t + (porCategoria[c] ?? 0), 0),
     inmueblesEnRadio: inmuebles,
     alquilerM2Promedio,
     observaciones: obs,

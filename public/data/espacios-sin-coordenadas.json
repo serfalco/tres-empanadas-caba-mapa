@@ -30,7 +30,7 @@
   {
     "id": "bacultura-1957",
     "nombre": "Del Buen Leer",
-    "categoria": "otros",
+    "categoria": "libreria",
     "categoria_original": "LIBRERIA",
     "subcategoria": "GENERAL",
     "funcion_secundaria": null,
@@ -58,7 +58,7 @@
   {
     "id": "bacultura-1998",
     "nombre": "El Librero Online",
-    "categoria": "otros",
+    "categoria": "libreria",
     "categoria_original": "LIBRERIA",
     "subcategoria": "GENERAL",
     "funcion_secundaria": null,
@@ -86,7 +86,7 @@
   {
     "id": "bacultura-2028",
     "nombre": "Fevrero",
-    "categoria": "otros",
+    "categoria": "libreria",
     "categoria_original": "LIBRERIA",
     "subcategoria": "GENERAL",
     "funcion_secundaria": null,
@@ -114,7 +114,7 @@
   {
     "id": "bacultura-2087",
     "nombre": "La Juglaresa",
-    "categoria": "otros",
+    "categoria": "libreria",
     "categoria_original": "LIBRERIA",
     "subcategoria": "ESPECIALIZADA",
     "funcion_secundaria": null,
@@ -142,7 +142,7 @@
   {
     "id": "bacultura-2097",
     "nombre": "La Miliciana",
-    "categoria": "otros",
+    "categoria": "libreria",
     "categoria_original": "LIBRERIA",
     "subcategoria": "GENERAL",
     "funcion_secundaria": null,
@@ -170,7 +170,7 @@
   {
     "id": "bacultura-2099",
     "nombre": "La Nieta De La Bruja",
-    "categoria": "otros",
+    "categoria": "libreria",
     "categoria_original": "LIBRERIA",
     "subcategoria": "GENERAL",
     "funcion_secundaria": null,
@@ -198,7 +198,7 @@
   {
     "id": "bacultura-2105",
     "nombre": "La Vaca Mariposa",
-    "categoria": "otros",
+    "categoria": "libreria",
     "categoria_original": "LIBRERIA",
     "subcategoria": "GENERAL",
     "funcion_secundaria": null,
@@ -226,7 +226,7 @@
   {
     "id": "bacultura-2108",
     "nombre": "Las Perlas Rojas",
-    "categoria": "otros",
+    "categoria": "libreria",
     "categoria_original": "LIBRERIA",
     "subcategoria": "ESPECIALIZADA",
     "funcion_secundaria": null,
@@ -254,7 +254,7 @@
   {
     "id": "bacultura-2129",
     "nombre": "Libros Del Camino",
-    "categoria": "otros",
+    "categoria": "libreria",
     "categoria_original": "LIBRERIA",
     "subcategoria": "GENERAL",
     "funcion_secundaria": null,
@@ -282,7 +282,7 @@
   {
     "id": "bacultura-2133",
     "nombre": "Libros Por Encargo",
-    "categoria": "otros",
+    "categoria": "libreria",
     "categoria_original": "LIBRERIA",
     "subcategoria": "GENERAL",
     "funcion_secundaria": null,
@@ -310,7 +310,7 @@
   {
     "id": "bacultura-2143",
     "nombre": "Lureads",
-    "categoria": "otros",
+    "categoria": "libreria",
     "categoria_original": "LIBRERIA",
     "subcategoria": "GENERAL",
     "funcion_secundaria": null,
@@ -338,7 +338,7 @@
   {
     "id": "bacultura-2146",
     "nombre": "Mandolina",
-    "categoria": "otros",
+    "categoria": "libreria",
     "categoria_original": "LIBRERIA",
     "subcategoria": "GENERAL",
     "funcion_secundaria": null,
@@ -366,7 +366,7 @@
   {
     "id": "bacultura-2148",
     "nombre": "Mantras Libros",
-    "categoria": "otros",
+    "categoria": "libreria",
     "categoria_original": "LIBRERIA",
     "subcategoria": "GENERAL",
     "funcion_secundaria": null,
@@ -394,7 +394,7 @@
   {
     "id": "bacultura-2156",
     "nombre": "Mi Casa",
-    "categoria": "otros",
+    "categoria": "libreria",
     "categoria_original": "LIBRERIA",
     "subcategoria": "ESPECIALIZADA",
     "funcion_secundaria": null,
@@ -422,7 +422,7 @@
   {
     "id": "bacultura-2173",
     "nombre": "Oasis",
-    "categoria": "otros",
+    "categoria": "libreria",
     "categoria_original": "LIBRERIA",
     "subcategoria": "ESPECIALIZADA",
     "funcion_secundaria": null,
@@ -450,7 +450,7 @@
   {
     "id": "bacultura-2186",
     "nombre": "Plop",
-    "categoria": "otros",
+    "categoria": "libreria",
     "categoria_original": "LIBRERIA",
     "subcategoria": "GENERAL",
     "funcion_secundaria": null,
@@ -478,7 +478,7 @@
   {
     "id": "bacultura-2191",
     "nombre": "Quarto Quilo",
-    "categoria": "otros",
+    "categoria": "libreria",
     "categoria_original": "LIBRERIA",
     "subcategoria": "GENERAL",
     "funcion_secundaria": null,
@@ -506,7 +506,7 @@
   {
     "id": "bacultura-2193",
     "nombre": "Quisoquito Virtual",
-    "categoria": "otros",
+    "categoria": "libreria",
     "categoria_original": "LIBRERIA",
     "subcategoria": "GENERAL",
     "funcion_secundaria": null,
@@ -534,7 +534,7 @@
   {
     "id": "bacultura-2198",
     "nombre": "Rincon Beauchef",
-    "categoria": "otros",
+    "categoria": "libreria",
     "categoria_original": "LIBRERIA",
     "subcategoria": "GENERAL",
     "funcion_secundaria": null,
@@ -562,7 +562,7 @@
   {
     "id": "bacultura-2209",
     "nombre": "Segui Leyendo",
-    "categoria": "otros",
+    "categoria": "libreria",
     "categoria_original": "LIBRERIA",
     "subcategoria": "GENERAL",
     "funcion_secundaria": null,
@@ -590,7 +590,7 @@
   {
     "id": "bacultura-2224",
     "nombre": "Wayra",
-    "categoria": "otros",
+    "categoria": "libreria",
     "categoria_original": "LIBRERIA",
     "subcategoria": "GENERAL",
     "funcion_secundaria": null,

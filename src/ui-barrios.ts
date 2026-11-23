@@ -1,11 +1,11 @@
 // Etapa 5: capa H, indicadores por barrio (coropletas).
 import L from 'leaflet';
+import { PRINCIPALES, SECUNDARIAS } from './capas';
 import type { BarrioProps, Datos } from './tipos';
 import { $, esc, num } from './util';
 
 type Indicador = { nombre: string; valor: (p: BarrioProps) => number | null; unidad: string };
 
-const PRINCIPALES = ['teatro', 'centro_cultural', 'bar', 'cine', 'musica'];
 const totalCultura = (p: BarrioProps) => PRINCIPALES.reduce((s, c) => s + (p.cultura[c] ?? 0), 0);
 
 const INDICADORES: Record<string, Indicador> = {
@@ -46,7 +46,7 @@ export function fichaBarrioHTML(p: BarrioProps): string {
       <tr><th>Bares</th><td>${c.bar ?? 0}</td></tr>
       <tr><th>Cines</th><td>${c.cine ?? 0}</td></tr>
       <tr><th>Música en vivo</th><td>${c.musica ?? 0}</td></tr>
-      <tr><th>Otros espacios</th><td>${c.otros ?? 0}</td></tr>
+      <tr><th>Museos, bibliotecas, librerías y otros</th><td>${SECUNDARIAS.reduce((t, k) => t + (c[k] ?? 0), 0)}</td></tr>
       <tr><th>Estaciones subte / tren</th><td>${p.estaciones_subte} / ${p.estaciones_tren}</td></tr>
       <tr><th>Líneas de colectivo</th><td>${p.lineas_colectivo}</td></tr>
     </table>

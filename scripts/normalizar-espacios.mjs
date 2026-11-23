@@ -31,6 +31,13 @@ const CAPAS = {
   'SALA DE CINE': 'cine',
   'CLUB DE MUSICA EN VIVO': 'musica',
   'CLUB DE MUSICA EN VIVO - NUEVO': 'musica',
+  MUSEO: 'museo',
+  'GALERIA DE ARTE': 'galeria',
+  BIBLIOTECA: 'biblioteca',
+  LIBRERIA: 'libreria',
+  DISQUERIA: 'libreria',
+  'ESPACIO DE FORMACION': 'formacion',
+  // MONUMENTOS Y LUGARES HISTORICOS, ESPACIO FERIAL, CALESITA, ANFITEATRO -> 'otros'
 };
 
 // Límites aproximados de CABA para descartar coordenadas erróneas
