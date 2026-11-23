@@ -71,8 +71,9 @@ const nuevos = [];
 
 for (const e of osm.elements) {
   const t = e.tags ?? {};
-  const capa = CAPA(t);
+  let capa = CAPA(t);
   if (!capa || !t.name) continue;
+  if (/^anfi/i.test(t.name)) capa = ['otros', 'Anfiteatro (OSM)'];
   const lat = e.lat ?? e.center?.lat;
   const lon = e.lon ?? e.center?.lon;
   if (!(lat >= BBOX.latMin && lat <= BBOX.latMax && lon >= BBOX.lonMin && lon <= BBOX.lonMax)) continue;

@@ -66,3 +66,6 @@
 
 - Cómo fusionar duplicados cuando se sumen otras fuentes (Alternativa Teatral, Indicadores de Cultura Independiente).
 - Si conviene que la búsqueda también filtre la lista de pendientes.
+
+- **Lugares de OpenStreetMap como complemento (2026-11-23).** El dataset del GCBA es la base; OSM suma sólo lo que no está, con fuente propia en cada ficha. Se eligieron etiquetas culturales concretas (teatros, centros de artes, cines, música en vivo, bibliotecas, museos, galerías) y no bares en general, para no mezclar gastronomía con oferta cultural.
+- **Canvas y clics.** Leaflet con `preferCanvas` crea un lienzo por pane y el de arriba bloquea los clics de los de abajo: los panes de líneas de transporte y calor van con `pointer-events: none`, y estaciones y paradas comparten el lienzo de los espacios.
