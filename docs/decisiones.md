@@ -3,7 +3,8 @@
 ## 2026-11-22 · MVP (etapas 1 y 2)
 
 - **Leaflet en lugar de MapLibre.** Es más simple, no necesita estilos vectoriales ni claves, y alcanza para puntos y capas. Si más adelante se necesitan muchas capas vectoriales, se puede migrar.
-- **Base cartográfica CARTO light (datos OSM).** Gratuita para uso bajo, sin clave, y visualmente sobria. Si el uso crece, revisar sus términos o autohospedar tiles.
+- **Base cartográfica OpenStreetMap estándar**, atenuada con CSS. Sin clave. (CARTO light se descartó el 2026-11-23: empezó a mostrar "API KEY REQUIRED".) Política de uso de OSM: uso bajo, con atribución; si el uso crece, autohospedar tiles o usar otro proveedor.
+- **Carga en dos pasos.** Espacios, transporte y barrios se dibujan apenas llegan; la planilla en vivo (y USIG, con tope de 6 s por dirección y 15 s total) se carga después, para que una demora externa no deje el mapa vacío.
 - **Render en canvas** (`preferCanvas`) con `circleMarker`, para dibujar unos 3.000 puntos con fluidez.
 - **Mapeo de categorías** (`FUNCION_PRINCIPAL` → capa):
   - `SALA DE TEATRO` → teatro (A)

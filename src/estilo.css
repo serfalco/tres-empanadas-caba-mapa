@@ -97,3 +97,6 @@ legend { font-size: 12px; font-weight: 600; padding: 0 4px; }
   #app.sin-panel { grid-template-rows: 1fr 0; }
   .campo.fila input[type='number'] { width: 96px; }
 }
+
+/* Mapa base OSM atenuado para que resalten las capas */
+.base-suave { filter: grayscale(0.85) brightness(1.06) contrast(0.9); }

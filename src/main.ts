@@ -17,11 +17,11 @@ import { $, metros, norm } from './util';
 const CENTRO_CABA: L.LatLngExpression = [-34.6118, -58.4173];
 
 const mapa = L.map('mapa', { preferCanvas: true, zoomControl: true }).setView(CENTRO_CABA, 12);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+// Mapa base de OpenStreetMap: gratuito y sin clave (CARTO pasó a exigir API key).
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19,
-  subdomains: 'abcd',
-  attribution:
-    '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> · © <a href="https://carto.com/attributions">CARTO</a>',
+  className: 'base-suave',
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">colaboradores de OpenStreetMap</a>',
 }).addTo(mapa);
 
 // Panes para ordenar capas: barrios abajo, transporte en el medio, puntos arriba.
@@ -190,70 +190,49 @@ function armarPendientes(lista: Espacio[]) {
   }
 }
 
-async function cargar(): Promise<Datos> {
-  const base = import.meta.env.BASE_URL;
-  const j = <T>(f: string) => fetch(`${base}data/${f}`).then((r) => {
+const BASE = import.meta.env.BASE_URL;
+function j<T>(f: string): Promise<T> {
+  return fetch(`${BASE}data/${f}`, { credentials: 'same-origin' }).then((r) => {
     if (!r.ok) throw new Error(`${f}: ${r.status}`);
     return r.json() as Promise<T>;
   });
-  const [esp, espPend, trans, barrios, inm, inmPend, colectivos] = await Promise.all([
-    j<Coleccion<EspacioFeature>>('espacios-culturales.geojson'),
-    j<Espacio[]>('espacios-sin-coordenadas.json'),
-    j<Coleccion<TransporteFeature>>('transporte.geojson'),
-    j<Coleccion<BarrioFeature>>('barrios.geojson'),
+}
+
+/** Inmuebles: intenta la planilla en vivo (con tope de tiempo); si falla, usa la copia incluida. */
+async function cargarInmuebles(barrios: BarrioFeature[]) {
+  const [inm, inmPend] = await Promise.all([
     j<Coleccion<InmuebleFeature>>('inmuebles.geojson'),
     j<Inmueble[]>('inmuebles-pendientes.json'),
-    j<Colectivos>('colectivos.json'),
   ]);
-  // Inmuebles: intentar la planilla en vivo; si falla, quedan los de la copia incluida.
-  let inmuebles = inm.features;
-  let inmueblesPendientes = inmPend;
-  let estado = 'Copia incluida en el sitio (exportada el 2026-11-23). No se pudo leer la planilla en vivo.';
+  let r = { inmuebles: inm.features, pendientes: inmPend, estado: 'Copia incluida en el sitio (exportada el 2026-11-23). No se pudo leer la planilla en vivo.' };
   try {
     const geo = await j<Geocodificacion>('inmuebles-geocodificacion.json');
-    const vivo = await cargarPlanilla(barrios.features, geo);
-    if (vivo) {
-      inmuebles = vivo.inmuebles;
-      inmueblesPendientes = vivo.pendientes;
-      estado = vivo.estado.detalle;
-    }
+    const tope = new Promise<null>((ok) => setTimeout(() => ok(null), 15000));
+    const vivo = await Promise.race([cargarPlanilla(barrios, geo), tope]);
+    if (vivo) r = { inmuebles: vivo.inmuebles, pendientes: vivo.pendientes, estado: vivo.estado.detalle };
   } catch (e) {
     console.warn('Planilla en vivo no disponible', e);
   }
-  $('estado-planilla').textContent = estado;
-
-  return {
-    espacios: esp.features,
-    espaciosPendientes: espPend,
-    transporte: trans.features,
-    barrios: barrios.features,
-    inmuebles,
-    inmueblesPendientes,
-    colectivos,
-  };
+  return r;
 }
 
 async function iniciar() {
   armarCapas();
   armarCalor();
-  const datos = await cargar();
-  espacios = datos.espacios;
-
-  const barrios = [...new Set(espacios.map((f) => f.properties.barrio).filter(Boolean))].sort() as string[];
+  // 1. Capas base: se dibujan apenas llegan, sin esperar la planilla.
+  const [esp, espPend, trans, barrios, colectivos] = await Promise.all([
+    j<Coleccion<EspacioFeature>>('espacios-culturales.geojson'),
+    j<Espacio[]>('espacios-sin-coordenadas.json'),
+    j<Coleccion<TransporteFeature>>('transporte.geojson'),
+    j<Coleccion<BarrioFeature>>('barrios.geojson'),
+    j<Colectivos>('colectivos.json'),
+  ]);
+  espacios = esp.features;
+  const nombres = [...new Set(espacios.map((f) => f.properties.barrio).filter(Boolean))].sort() as string[];
   const sel = $('barrio') as HTMLSelectElement;
-  for (const b of barrios) sel.add(new Option(b, b));
-
-  armarPendientes(datos.espaciosPendientes);
+  for (const b of nombres) sel.add(new Option(b, b));
+  armarPendientes(espPend);
   dibujarEspacios();
-
-  montarTransporte(mapa, datos);
-  montarBarrios(mapa, datos);
-  const zona = montarZona(mapa, datos, irAPestana);
-  const eco = montarEconomia(datos);
-  montarInmuebles(mapa, datos, {
-    analizar: (id) => zona.analizarInmueble(id),
-    simular: (id) => { eco.seleccionar(id); irAPestana('economia'); },
-  });
 
   let t: number | undefined;
   $('buscar').addEventListener('input', () => {
@@ -265,9 +244,33 @@ async function iniciar() {
     $('app').classList.toggle('sin-panel');
     setTimeout(() => mapa.invalidateSize(), 200);
   });
+
+  const datos: Datos = {
+    espacios,
+    espaciosPendientes: espPend,
+    transporte: trans.features,
+    barrios: barrios.features,
+    inmuebles: [],
+    inmueblesPendientes: [],
+    colectivos,
+  };
+  montarTransporte(mapa, datos);
+  montarBarrios(mapa, datos);
+
+  // 2. Inmuebles (planilla en vivo) y módulos que dependen de ellos.
+  const inm = await cargarInmuebles(datos.barrios);
+  datos.inmuebles = inm.inmuebles;
+  datos.inmueblesPendientes = inm.pendientes;
+  $('estado-planilla').textContent = inm.estado;
+  const zona = montarZona(mapa, datos, irAPestana);
+  const eco = montarEconomia(datos);
+  montarInmuebles(mapa, datos, {
+    analizar: (id) => zona.analizarInmueble(id),
+    simular: (id) => { eco.seleccionar(id); irAPestana('economia'); },
+  });
 }
 
 iniciar().catch((e) => {
   console.error(e);
-  $('resumen').textContent = 'Error al cargar los datos.';
+  $('resumen').textContent = `Error al cargar los datos: ${e instanceof Error ? e.message : e}`;
 });

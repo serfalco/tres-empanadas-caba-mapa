@@ -17,7 +17,7 @@ const URL_PLANILLA =
   (import.meta.env.VITE_PLANILLA_CSV as string | undefined) ||
   `https://docs.google.com/spreadsheets/d/${ID_PLANILLA}/gviz/tq?tqx=out:csv&sheet=Oportunidades`;
 const USIG = 'https://servicios.usig.buenosaires.gob.ar/normalizar/';
-const CACHE = 'tres.usig.v1';
+const CACHE = 'tres.usig.v2';
 
 export interface Geocodificacion {
   _fuente: string;
@@ -82,7 +82,7 @@ async function geocodificarUSIG(
   barrio: BarrioFeature | undefined,
 ): Promise<[number, number, string] | null> {
   const url = `${USIG}?direccion=${encodeURIComponent(direccion)}&geocodificar=TRUE&srid=4326&maxOptions=10`;
-  const r = await fetch(url);
+  const r = await fetch(url, { signal: AbortSignal.timeout(6000) });
   if (!r.ok) return null;
   const j = await r.json();
   const candidatos = (j.direccionesNormalizadas ?? [])
@@ -166,8 +166,10 @@ export async function cargarPlanilla(
       const clave = `${norm(direccion)}|${norm(p.barrio)}`;
       let res = cache[clave];
       if (res === undefined) {
-        try { res = await geocodificarUSIG(direccion, barrio); } catch { res = null; }
-        cache[clave] = res;
+        try {
+          res = await geocodificarUSIG(direccion, barrio);
+          cache[clave] = res; // sólo se guarda una respuesta real, no un error de red
+        } catch { res = null; }
       }
       if (!res) {
         pendientes.push({ ...p, motivo: 'Dirección no encontrada o ambigua en USIG para el barrio informado' });
