@@ -81,7 +81,8 @@ for (const r of registros) {
   const capa = CAPAS[funcion] ?? 'otros';
   const lat = Number(g('LATITUD'));
   const lon = Number(g('LONGITUD'));
-  const web = g('WEB');
+  const url = (v) => (v && !/^https?:\/\//i.test(v) ? `http://${v.toLowerCase()}` : v);
+  const ig = g('INSTAGRAM');
 
   const props = {
     id: `bacultura-${g('fid')}`,
@@ -95,8 +96,13 @@ for (const r of registros) {
     comuna: g('COMUNA'),
     capacidad: g('CAPACIDAD_TOTAL') ? Number(g('CAPACIDAD_TOTAL')) || null : null,
     salas: g('CANTIDAD_SALAS') ? Number(g('CANTIDAD_SALAS')) || null : null,
-    web: web && !/^https?:\/\//i.test(web) ? `http://${web}` : web,
-    instagram: g('INSTAGRAM'),
+    sala: [g('SUCURSAL'), g('SALA')].filter(Boolean).map(titulo).join(' · ') || null,
+    telefono: g('TELEFONO'),
+    mail: g('MAIL')?.toLowerCase() ?? null,
+    web: url(g('WEB')),
+    instagram: ig ? (/^@/.test(ig) ? `https://www.instagram.com/${ig.slice(1)}/` : url(ig)) : null,
+    facebook: url(g('FACEBOOK')),
+    programacion: g('PROGRAMACION') ? /^s/i.test(g('PROGRAMACION')) : null,
     fuente: FUENTE.nombre,
     enlace: FUENTE.dataset,
     fecha_fuente: FUENTE.fecha_fuente,

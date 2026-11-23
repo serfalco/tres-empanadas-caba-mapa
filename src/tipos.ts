@@ -10,8 +10,13 @@ export interface Espacio {
   comuna: string | null;
   capacidad: number | null;
   salas: number | null;
+  sala: string | null;
+  telefono: string | null;
+  mail: string | null;
   web: string | null;
   instagram: string | null;
+  facebook: string | null;
+  programacion: boolean | null;
   fuente: string;
   enlace: string;
   fecha_fuente: string;

@@ -4,19 +4,25 @@ import { enlace, esc, pesos } from './util';
 const fila = (k: string, v: unknown) =>
   v === null || v === undefined || v === '' ? '' : `<tr><th>${k}</th><td>${esc(v)}</td></tr>`;
 
-export function fichaHTML(p: Espacio): string {
-  const links = [enlace(p.web, 'Web'), enlace(p.instagram, 'Instagram')].filter(Boolean).join(' · ');
+export function fichaHTML(p: Espacio, coords?: [number, number]): string {
+  const comoLlegar = coords ? `https://www.google.com/maps/search/?api=1&query=${coords[1]},${coords[0]}` : null;
+  const links = [enlace(p.web, 'Web'), enlace(p.instagram, 'Instagram'), enlace(p.facebook, 'Facebook'), enlace(comoLlegar, 'Ver en Google Maps')]
+    .filter(Boolean).join(' · ');
+  const mail = p.mail && /^[^\s@]+@[^\s@]+$/.test(p.mail) ? `<a href="mailto:${esc(p.mail)}">${esc(p.mail)}</a>` : '';
   return `
     <div class="ficha">
       <h3>${esc(p.nombre)}</h3>
       <table>
         ${fila('Categoría', [p.categoria_original, p.subcategoria].filter(Boolean).join(' · '))}
         ${fila('También', p.funcion_secundaria)}
+        ${fila('Sede / sala', p.sala)}
         ${fila('Dirección', p.direccion)}
         ${fila('Barrio', [p.barrio, p.comuna].filter(Boolean).join(' · '))}
         ${fila('Capacidad', p.capacidad)}
         ${fila('Salas', p.salas)}
-        ${fila('Estado', p.estado)}
+        ${fila('Programación', p.programacion === null ? null : p.programacion ? 'Sí' : 'No')}
+        ${fila('Teléfono', p.telefono)}
+        ${mail ? `<tr><th>Mail</th><td>${mail}</td></tr>` : ''}
       </table>
       ${links ? `<p>${links}</p>` : ''}
       <p class="fuente">Fuente: <a href="${esc(p.enlace)}" target="_blank" rel="noopener">${esc(p.fuente)}</a>, actualizada ${esc(p.fecha_fuente)}.</p>

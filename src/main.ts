@@ -25,9 +25,17 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(mapa);
 
 // Panes para ordenar capas: barrios abajo, transporte en el medio, puntos arriba.
+(window as unknown as { mapaTres: L.Map }).mapaTres = mapa; // para depurar desde la consola
 mapa.createPane('barrios').style.zIndex = '350';
-mapa.createPane('transporte').style.zIndex = '420';
-mapa.createPane('calor').style.zIndex = '430';
+// Con canvas, cada pane tiene su propio lienzo y el de arriba se "come" los clics de los de abajo.
+// Por eso las líneas de transporte y el calor no reciben eventos, y las estaciones y paradas
+// comparten el lienzo de los espacios culturales (overlayPane).
+const paneTransporte = mapa.createPane('transporte');
+paneTransporte.style.zIndex = '420';
+paneTransporte.style.pointerEvents = 'none';
+const paneCalor = mapa.createPane('calor');
+paneCalor.style.zIndex = '430';
+paneCalor.style.pointerEvents = 'none';
 mapa.createPane('inmuebles').style.zIndex = '650';
 
 // ---------- Pestañas ----------
@@ -75,7 +83,7 @@ function dibujarEspacios() {
     const def = CAPAS_CULTURA.find((c) => c.id === p.categoria)!;
     const [lon, lat] = f.geometry.coordinates;
     L.circleMarker([lat, lon], { radius: 5, color: '#fff', weight: 1, fillColor: def.color, fillOpacity: 0.85 })
-      .bindPopup(() => fichaHTML(p), { maxWidth: 320 })
+      .bindPopup(() => fichaHTML(p, f.geometry.coordinates), { maxWidth: 320 })
       .bindTooltip(p.nombre ?? '', { direction: 'top', offset: [0, -4] })
       .addTo(grupos.get(p.categoria)!);
   }

@@ -24,16 +24,16 @@ export function montarTransporte(mapa: L.Map, datos: Datos) {
     } else {
       const [lon, lat] = f.geometry.coordinates;
       if (p.tipo === 'metrobus_estacion') {
-        L.circleMarker([lat, lon], { pane: 'transporte', radius: 3, color: COLOR_METROBUS, weight: 2, fillColor: '#fff', fillOpacity: 1 })
+        L.circleMarker([lat, lon], { radius: 3, color: COLOR_METROBUS, weight: 2, fillColor: '#fff', fillOpacity: 1 })
           .bindTooltip(`Metrobus ${esc(p.nombre)} · líneas ${esc(p.linea)}`)
           .addTo(metrobus);
       } else if (p.tipo === 'subte_estacion') {
-        L.circleMarker([lat, lon], { pane: 'transporte', radius: 4, color: COLOR_SUBTE[p.linea ?? ''] ?? '#333', weight: 2, fillColor: '#fff', fillOpacity: 1 })
+        L.circleMarker([lat, lon], { radius: 4, color: COLOR_SUBTE[p.linea ?? ''] ?? '#333', weight: 2, fillColor: '#fff', fillOpacity: 1 })
           .bindTooltip(`${esc(p.nombre)} · Línea ${esc(p.linea)}`)
           .bindPopup(`<div class="ficha"><h3>${esc(p.nombre)}</h3><p>Subte, línea ${esc(p.linea)}</p>${fuente}</div>`)
           .addTo(subte);
       } else {
-        L.circleMarker([lat, lon], { pane: 'transporte', radius: 4, color: COLOR_TREN, weight: 2, fillColor: '#fff', fillOpacity: 1 })
+        L.circleMarker([lat, lon], { radius: 4, color: COLOR_TREN, weight: 2, fillColor: '#fff', fillOpacity: 1 })
           .bindTooltip(`${esc(p.nombre)} · ${esc(p.linea)}`)
           .bindPopup(`<div class="ficha"><h3>Estación ${esc(p.nombre)}</h3><p>${esc(p.linea)}<br>${esc(p.ramal ?? '')}</p>${fuente}</div>`)
           .addTo(tren);
@@ -55,7 +55,7 @@ export function montarTransporte(mapa: L.Map, datos: Datos) {
   const colectivos = L.layerGroup();
   const fuenteCol = `Fuente: <a href="${esc(datos.colectivos.enlace)}" target="_blank" rel="noopener">${esc(datos.colectivos.fuente)}</a>, ${esc(datos.colectivos.fecha_fuente)}.`;
   for (const [lon, lat, lineas] of datos.colectivos.paradas) {
-    L.circleMarker([lat, lon], { pane: 'transporte', radius: 2.5, color: COLOR_COLECTIVO, weight: 1, fillColor: COLOR_COLECTIVO, fillOpacity: 0.8 })
+    L.circleMarker([lat, lon], { radius: 2.5, color: COLOR_COLECTIVO, weight: 1, fillColor: COLOR_COLECTIVO, fillOpacity: 0.8 })
       .bindTooltip(`Colectivo: ${esc(lineas.split(',').join(', '))}`)
       .bindPopup(`<div class="ficha"><h3>Parada de colectivo</h3><p>Líneas: ${esc(lineas.split(',').join(', '))}</p><p class="fuente">${fuenteCol}</p></div>`)
       .addTo(colectivos);
