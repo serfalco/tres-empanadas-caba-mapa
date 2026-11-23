@@ -55,6 +55,12 @@ src/               aplicación (TypeScript + Vite + Leaflet)
 docs/              especificación, fuentes y decisiones técnicas
 ```
 
+## Despliegue (Cloudflare Pages + Access)
+
+1. En Cloudflare, ir a Workers & Pages, luego Create, Pages, y conectar este repositorio.
+2. Configurar el build: comando `npm run build`, salida `dist`, Node 20 o superior.
+3. Antes de compartir la URL, ir a Zero Trust, luego Access, Applications, Add (Self-hosted). Ahí cargar el dominio `*.pages.dev` del proyecto y una política que permita sólo los emails autorizados. Access es gratuito hasta 50 usuarios.
+
 ## Fuentes y licencias
 
 Ver [`docs/fuentes.md`](docs/fuentes.md). Decisiones técnicas y limitaciones en [`docs/decisiones.md`](docs/decisiones.md).
